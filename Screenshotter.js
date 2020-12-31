@@ -1,24 +1,24 @@
 const name = "Screenshotter";
-const version = "0.9";
+const version = "1.0";
 const author = "fidwell";
 
 const unitOptions = [
 	"in-game days",
 	"in-game months",
 	"in-game years",
-	"ticks"
-	//"real-time minutes",
-	//"real-time hours",
-	//"real-time seconds"
+	"ticks",
+	"real-time seconds",
+	"real-time minutes",
+	"real-time hours"
 ];
 const zoomLevels = ["1:1","2:1","4:1","8:1","16:1","32:1"];
 const rotations = ["0°","90°","180°","270°","All four"];
 
 var theWindow = null;
-var subscription = null; // In-game time
-//var timeout = null; // Real-time
+var subscription = null;
 var sleeps = 0;
 var tickMultiplier = 100;
+var lastTimeTaken = null; // for real-time capture. elapsed milliseconds
 
 var options = {
 	isEnabled: false,
@@ -213,27 +213,24 @@ function setInterval () {
 				subscription = context.subscribe("interval.tick", inGameTimeCapture);
 				break;
 			
-			/*
-			
-			Real-time stuff not available, as we do not
-			have access to the "setTimeout" method.
-			
-			case 4: // Real-time minutes
-				console.log("minutes");
-				alertInterval = "minutes";
-				timeout = setTimeout(realTimeCapture, options.interval * 60 * 1000);
+			case 4: // Real-time seconds
+				alertInterval = (options.interval + " seconds");
+				if (subscription) subscription.dispose();
+				subscription = context.subscribe("interval.tick", realTimeCapture);
+				lastTimeTaken = Date.now();
 				break;
-			case 5: // Real-time hours
-				console.log("hours");
-				alertInterval = "hours";
-				timeout = setTimeout(realTimeCapture, options.interval * 60 * 60 * 1000);
+			case 5: // Real-time minutes
+				alertInterval = (options.interval + " minutes");
+				if (subscription) subscription.dispose();
+				subscription = context.subscribe("interval.tick", realTimeCapture);
+				lastTimeTaken = Date.now();
 				break;
-			case 6: // Real-time seconds
-				console.log("seconds");
-				alertInterval = "seconds";
-				timeout = setTimeout(realTimeCapture, options.interval * 1000);
+			case 6: // Real-time hours
+				alertInterval = (options.interval + " hours");
+				if (subscription) subscription.dispose();
+				subscription = context.subscribe("interval.tick", realTimeCapture);
+				lastTimeTaken = Date.now();
 				break;
-			*/
 		}
 		
 		sleeps = options.interval;
@@ -243,17 +240,9 @@ function setInterval () {
 		if (subscription) {
 			subscription.dispose();
 		}
-		
-		// To do: Dispose of real-time
-		//window.clearTimeout(timeout);
-		
 		console.log("Screenshotter disabled");
 	}
 }
-
-// function realTimeCapture () {
-	// console.log("Pretending to capture");
-// }
 
 function inGameTimeCapture () {
 	switch (options.units) {
@@ -277,6 +266,38 @@ function inGameTimeCapture () {
 	
 	if (sleeps <= 0) {
 		capture();
+		resetSleepTimer();
+	}
+}
+
+// Shortcuts for time in milliseconds
+const oneSecond = 1000;
+const oneMinute = 60 * 1000;
+const oneHour = 60 * 60 * 1000;
+
+function realTimeCapture () {
+	var time = Date.now();
+	var elapsedTime = time - lastTimeTaken;
+	var targetElapsed = 0;
+	
+	switch (options.units) {
+		case 4: // Real-time seconds
+			targetElapsed = options.interval * oneSecond;
+			break;
+		case 5: // Real-time minutes
+			targetElapsed = options.interval * oneMinute;
+			break;
+		case 6: // Real-time hours
+			targetElapsed = options.interval * oneHour;
+			break;
+		default:
+			break;
+	}
+	
+	if (elapsedTime >= targetElapsed) {
+		capture();
+		resetSleepTimer();
+		lastTimeTaken = Date.now();
 	}
 }
 
@@ -290,8 +311,9 @@ function capture () {
 	} else {
 		captureWithRotation(options.rotation);
 	}
-	
-	// Reset sleep timer
+}
+
+function resetSleepTimer() {
 	sleeps = options.units == 3
 		? options.interval * tickMultiplier
 		: options.interval;
