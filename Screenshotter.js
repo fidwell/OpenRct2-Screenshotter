@@ -4,13 +4,17 @@ const unitOptions = [
 	"in-game days",
 	"in-game months",
 	"in-game years",
-	"real-time minutes",
-	"real-time hours"
+	"ticks"
+	//"real-time minutes",
+	//"real-time hours",
+	//"real-time seconds"
 ];
 
 var theWindow = null;
-var subscription = null;
+var subscription = null; // In-game time
+//var timeout = null; // Real-time
 var sleeps = 0;
+var tickMultiplier = 100;
 
 var options = {
 	isEnabled: false,
@@ -137,6 +141,7 @@ function addMenuItem () {
 				selectedIndex: options.units,
 				onChange: function (index) {
 					options.units = index;
+					updateSpinner();
 					setInterval();
 				}
 			},
@@ -164,72 +169,83 @@ function addMenuItem () {
 }
 
 function updateSpinner() {
-	theWindow.findWidget(intervalSpinner.name).text = ("" + options.interval);
+	var text = options.units == 3 ? ("" + options.interval * tickMultiplier) : ("" + options.interval);
+	
+	theWindow.findWidget(intervalSpinner.name).text = text;
 	setInterval();
 }
 
 function setInterval () {
-	console.log(options.units);
-	console.log(options.isEnabled);
-	
 	if (options.isEnabled) {
 		var alertInterval = "";
 		switch (options.units) {
 			case 0: // In-game days
-				console.log("days");
-				alertInterval = "days";
+				alertInterval = (options.interval + " days");
 				if (subscription) subscription.dispose();
 				subscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
 			case 1: // In-game months
-				console.log("months");
-				alertInterval = "months";
+				alertInterval = (options.interval + " months");
 				if (subscription) subscription.dispose();
 				subscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
 			case 2: // In-game years
-				console.log("years");
-				alertInterval = "years";
+				alertInterval = (options.interval + " years");
 				if (subscription) subscription.dispose();
 				subscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
-			case 3: // Real-time minutes
+			case 3: // Ticks
+				alertInterval = ((options.interval * tickMultiplier) + " ticks");
+				if (subscription) subscription.dispose();
+				subscription = context.subscribe("interval.tick", inGameTimeCapture);
+				break;
+			
+			/*
+			
+			Real-time stuff not available, as we do not
+			have access to the "setTimeout" method.
+			
+			case 4: // Real-time minutes
 				console.log("minutes");
 				alertInterval = "minutes";
-				// To do
+				timeout = setTimeout(realTimeCapture, options.interval * 60 * 1000);
 				break;
-			case 4: // Real-time hours
+			case 5: // Real-time hours
 				console.log("hours");
 				alertInterval = "hours";
-				// To do
+				timeout = setTimeout(realTimeCapture, options.interval * 60 * 60 * 1000);
 				break;
+			case 6: // Real-time seconds
+				console.log("seconds");
+				alertInterval = "seconds";
+				timeout = setTimeout(realTimeCapture, options.interval * 1000);
+				break;
+			*/
 		}
 		
 		sleeps = options.interval;
-		console.log("Screenshotter enabled to every " + options.interval + " " + alertInterval);
+		console.log("Screenshotter enabled to every " + alertInterval);
 	} else {
 		// If we disabled the screenshotter, dispose of the game-time subscription
 		if (subscription) {
 			subscription.dispose();
 		}
 		
-		// To do: Dispose of real-time 
+		// To do: Dispose of real-time
+		//window.clearTimeout(timeout);
 		
-		makeAlert("Screenshotter disabled");
+		console.log("Screenshotter disabled");
 	}
 }
 
-function makeAlert(message) {
-	park.postMessage({
-		type: "award",
-		text: message
-	});
-}
+// function realTimeCapture () {
+	// console.log("Pretending to capture");
+// }
 
 function inGameTimeCapture () {
-	console.log("day " + date.day + " of month " + (date.month + 3) + ", year " + date.year);
 	switch (options.units) {
 		case 0: // In-game days
+		case 3: // ticks
 			sleeps--;
 			break;
 		case 1: // In-game months
@@ -261,7 +277,11 @@ function capture () {
 		zoom: options.zoom,
 		rotation: options.rotation
 	});
-	sleeps = options.interval; // Reset sleep timer
+	
+	// Reset sleep timer
+	sleeps = options.units == 3
+		? options.interval * tickMultiplier
+		: options.interval;
 }
 
 function main () {
@@ -270,7 +290,7 @@ function main () {
 
 registerPlugin({
 	name: name,
-	version: "1.0",
+	version: "0.8",
 	authors: ["fidwell"],
 	type: "local",
 	licence: "MIT",
