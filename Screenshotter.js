@@ -1,4 +1,6 @@
 const name = "Screenshotter";
+const version = "0.9";
+const author = "fidwell";
 
 const unitOptions = [
 	"in-game days",
@@ -9,6 +11,8 @@ const unitOptions = [
 	//"real-time hours",
 	//"real-time seconds"
 ];
+const zoomLevels = ["1:1","2:1","4:1","8:1","16:1","32:1"];
+const rotations = ["0°","90°","180°","270°","All four"];
 
 var theWindow = null;
 var subscription = null; // In-game time
@@ -50,7 +54,7 @@ function addMenuItem () {
 			id: 1,
 			classification: name,
 			width: 230,
-			height: 200,
+			height: 220,
 			widgets: [
 			{
 				type: "checkbox",
@@ -87,7 +91,7 @@ function addMenuItem () {
 				y: 58,
 				width: 90,
 				height: 16,
-				items: ["North","East","South","West"],
+				items: rotations,
 				selectedIndex: options.rotation,
 				onChange: function (index) {
 					options.rotation = index;
@@ -108,7 +112,7 @@ function addMenuItem () {
 				y: 78,
 				width: 90,
 				height: 16,
-				items: ["1:1","2:1","4:1","8:1","16:1","32:1"],
+				items: zoomLevels,
 				selectedIndex: options.zoom,
 				onChange: function (index) {
 					options.zoom = index;
@@ -160,8 +164,17 @@ function addMenuItem () {
 				y: 175,
 				width: 210,
 				height: 16,
-				text: "Capture now",
+				text: "Take a screenshot now",
 				onClick: function () { capture(); }
+			},
+			{
+				type: "label",
+				x: 10,
+				y: 200,
+				width: 210,
+				height: 16,
+				isDisabled: true,
+				text: "Made by " + author + "; ver. " + version
 			}
 			]
 		});
@@ -269,19 +282,30 @@ function inGameTimeCapture () {
 
 function capture () {
 	console.log("Capturing...")
+	
+	if (options.rotation == 4) {
+		for (var x = 0; x < 4; x++) {
+			captureWithRotation(x);
+		}
+	} else {
+		captureWithRotation(options.rotation);
+	}
+	
+	// Reset sleep timer
+	sleeps = options.units == 3
+		? options.interval * tickMultiplier
+		: options.interval;
+}
+
+function captureWithRotation (rotation) {
 	context.captureImage({
 		// filename: "", // Default (screenshot\park yyyy-mm-dd hh-mm-ss.png)
 		// width: 0, // Default for giant screenshot
 		// height: 0, // Default for giant screenshot
 		// position: null, // Default for giant screenshot
 		zoom: options.zoom,
-		rotation: options.rotation
+		rotation: rotation
 	});
-	
-	// Reset sleep timer
-	sleeps = options.units == 3
-		? options.interval * tickMultiplier
-		: options.interval;
 }
 
 function main () {
@@ -290,8 +314,8 @@ function main () {
 
 registerPlugin({
 	name: name,
-	version: "0.8",
-	authors: ["fidwell"],
+	version: version,
+	authors: [author],
 	type: "local",
 	licence: "MIT",
 	main: main
