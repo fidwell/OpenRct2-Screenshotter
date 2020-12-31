@@ -28,25 +28,6 @@ var options = {
 	interval: 1
 };
 
-var intervalSpinner = {
-	type: "spinner",
-	name: "intervalSpinner",
-	x: 90,
-	y: 128,
-	width: 120,
-	height: 16,
-	text: ("" + options.interval),
-	onDecrement: function () {
-		options.interval--;
-		if (options.interval < 1) options.interval = 1;
-		updateSpinner();
-	},
-	onIncrement: function () {
-		options.interval++;
-		updateSpinner();
-	}
-};
-
 function addMenuItem () {
 	 ui.registerMenuItem(name, function() {
 		theWindow = ui.openWindow({
@@ -145,7 +126,24 @@ function addMenuItem () {
 				height: 16,
 				text: "Amount:"
 			},
-			intervalSpinner,
+			{
+				type: "spinner",
+				name: "intervalSpinner",
+				x: 90,
+				y: 128,
+				width: 120,
+				height: 16,
+				text: ("" + options.interval),
+				onDecrement: function () {
+					options.interval--;
+					if (options.interval < 1) options.interval = 1;
+					updateSpinner();
+				},
+				onIncrement: function () {
+					options.interval++;
+					updateSpinner();
+				}
+			},
 			{
 				type: "checkbox",
 				x: 10,
@@ -185,7 +183,7 @@ function addMenuItem () {
 function updateSpinner() {
 	var text = options.units == 3 ? ("" + options.interval * tickMultiplier) : ("" + options.interval);
 	
-	theWindow.findWidget(intervalSpinner.name).text = text;
+	theWindow.findWidget("intervalSpinner").text = text;
 	setInterval();
 }
 
