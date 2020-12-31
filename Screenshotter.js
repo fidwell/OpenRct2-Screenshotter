@@ -32,7 +32,7 @@ var intervalSpinner = {
 	type: "spinner",
 	name: "intervalSpinner",
 	x: 90,
-	y: 148,
+	y: 128,
 	width: 120,
 	height: 16,
 	text: ("" + options.interval),
@@ -56,23 +56,11 @@ function addMenuItem () {
 			width: 230,
 			height: 220,
 			widgets: [
-			{
-				type: "checkbox",
-				x: 10,
-				y: 20,
-				width: 100,
-				height: 16,
-				text: "Enabled",
-				isChecked: options.isEnabled,
-				onChange: function (isChecked) {
-					options.isEnabled = isChecked;
-					setInterval();
-				}
-			},
+			
 			{
 				type: "groupbox",
 				x: 10,
-				y: 40,
+				y: 20,
 				width: 210,
 				height: 60,
 				text: "Viewport"
@@ -80,7 +68,7 @@ function addMenuItem () {
 			{
 				type: "label",
 				x: 20,
-				y: 60,
+				y: 40,
 				width: 100,
 				height: 16,
 				text: "Rotation angle:"
@@ -88,7 +76,7 @@ function addMenuItem () {
 			{
 				type: "dropdown",
 				x: 110,
-				y: 58,
+				y: 38,
 				width: 90,
 				height: 16,
 				items: rotations,
@@ -101,7 +89,7 @@ function addMenuItem () {
 			{
 				type: "label",
 				x: 20,
-				y: 80,
+				y: 60,
 				width: 100,
 				height: 16,
 				text: "Zoom level:"
@@ -109,7 +97,7 @@ function addMenuItem () {
 			{
 				type: "dropdown",
 				x: 110,
-				y: 78,
+				y: 58,
 				width: 90,
 				height: 16,
 				items: zoomLevels,
@@ -122,7 +110,7 @@ function addMenuItem () {
 			{
 				type: "groupbox",
 				x: 10,
-				y: 110,
+				y: 90,
 				width: 210,
 				height: 60,
 				text: "Interval"
@@ -130,7 +118,7 @@ function addMenuItem () {
 			{
 				type: "label",
 				x: 20,
-				y: 130,
+				y: 110,
 				width: 60,
 				height: 16,
 				text: "Units:"
@@ -138,7 +126,7 @@ function addMenuItem () {
 			{
 				type: "dropdown",
 				x: 90,
-				y: 128,
+				y: 108,
 				width: 120,
 				height: 16,
 				items: unitOptions,
@@ -152,12 +140,25 @@ function addMenuItem () {
 			{
 				type: "label",
 				x: 20,
-				y: 150,
+				y: 130,
 				width: 60,
 				height: 16,
 				text: "Amount:"
 			},
 			intervalSpinner,
+			{
+				type: "checkbox",
+				x: 10,
+				y: 155,
+				width: 210,
+				height: 16,
+				text: "Enabled (game must be unpaused)",
+				isChecked: options.isEnabled,
+				onChange: function (isChecked) {
+					options.isEnabled = isChecked;
+					setInterval();
+				}
+			},
 			{
 				type: "button",
 				x: 10,
