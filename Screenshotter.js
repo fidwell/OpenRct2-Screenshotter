@@ -1,5 +1,5 @@
 const name = "Screenshotter";
-const version = "1.1";
+const version = "1.2";
 const author = "fidwell";
 
 const unitOptions = [
@@ -15,10 +15,10 @@ const zoomLevels = ["1:1", "2:1", "4:1", "8:1", "16:1", "32:1"];
 const rotations = ["0°", "90°", "180°", "270°", "All four"];
 
 var theWindow = null;
-var subscription = null;
+var inGameSubscription = null;
+var realTimeSubscription = 0;
 var sleeps = 0;
 var tickMultiplier = 100;
-var lastTimeTaken = null; // for real-time capture. elapsed milliseconds
 
 var options = {
 	isEnabled: false,
@@ -149,7 +149,7 @@ function addMenuItem() {
 					y: 155,
 					width: 210,
 					height: 16,
-					text: "Enabled (game must be unpaused)",
+					text: "Enabled",
 					isChecked: options.isEnabled,
 					onChange: function (isChecked) {
 						options.isEnabled = isChecked;
@@ -192,52 +192,55 @@ function setInterval() {
 		switch (options.units) {
 			case 0: // In-game days
 				alertInterval = (options.interval + " days");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.day", inGameTimeCapture);
+				if (inGameSubscription) inGameSubscription.dispose();
+				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
 			case 1: // In-game months
 				alertInterval = (options.interval + " months");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.day", inGameTimeCapture);
+				if (inGameSubscription) inGameSubscription.dispose();
+				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
 			case 2: // In-game years
 				alertInterval = (options.interval + " years");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.day", inGameTimeCapture);
+				if (inGameSubscription) inGameSubscription.dispose();
+				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
 				break;
 			case 3: // Ticks
 				alertInterval = ((options.interval * tickMultiplier) + " ticks");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.tick", inGameTimeCapture);
+				if (inGameSubscription) inGameSubscription.dispose();
+				inGameSubscription = context.subscribe("interval.tick", inGameTimeCapture);
 				break;
 
 			case 4: // Real-time seconds
 				alertInterval = (options.interval + " seconds");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.tick", realTimeCapture);
-				lastTimeTaken = Date.now();
+				context.clearInterval(realTimeSubscription);
+				realTimeSubscription = context.setInterval(capture, options.interval * 1000);
 				break;
 			case 5: // Real-time minutes
 				alertInterval = (options.interval + " minutes");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.tick", realTimeCapture);
-				lastTimeTaken = Date.now();
+				context.clearInterval(realTimeSubscription);
+				realTimeSubscription = context.setInterval(capture, options.interval * 1000 * 60);
 				break;
 			case 6: // Real-time hours
 				alertInterval = (options.interval + " hours");
-				if (subscription) subscription.dispose();
-				subscription = context.subscribe("interval.tick", realTimeCapture);
-				lastTimeTaken = Date.now();
+				context.clearInterval(realTimeSubscription);
+				realTimeSubscription = context.setInterval(capture, options.interval * 1000 * 60 * 60);
 				break;
 		}
 
 		sleeps = options.interval;
 		console.log("Screenshotter enabled to every " + alertInterval);
 	} else {
-		// If we disabled the screenshotter, dispose of the game-time subscription
-		if (subscription) {
-			subscription.dispose();
+		// If we disabled the screenshotter:
+
+		// (1) Dispose of the game-time subscription
+		if (inGameSubscription) {
+			inGameSubscription.dispose();
 		}
+
+		// (2) Dispose of the real-time subscription
+		context.clearInterval(realTimeSubscription);
+
 		console.log("Screenshotter disabled");
 	}
 }
@@ -265,37 +268,6 @@ function inGameTimeCapture() {
 	if (sleeps <= 0) {
 		capture();
 		resetSleepTimer();
-	}
-}
-
-// Shortcuts for time in milliseconds
-const oneSecond = 1000;
-const oneMinute = 60 * 1000;
-const oneHour = 60 * 60 * 1000;
-
-function realTimeCapture() {
-	var time = Date.now();
-	var elapsedTime = time - lastTimeTaken;
-	var targetElapsed = 0;
-
-	switch (options.units) {
-		case 4: // Real-time seconds
-			targetElapsed = options.interval * oneSecond;
-			break;
-		case 5: // Real-time minutes
-			targetElapsed = options.interval * oneMinute;
-			break;
-		case 6: // Real-time hours
-			targetElapsed = options.interval * oneHour;
-			break;
-		default:
-			break;
-	}
-
-	if (elapsedTime >= targetElapsed) {
-		capture();
-		resetSleepTimer();
-		lastTimeTaken = Date.now();
 	}
 }
 
