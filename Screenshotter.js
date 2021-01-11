@@ -63,7 +63,7 @@ function addMenuItem() {
 					selectedIndex: options.rotation,
 					onChange: function (index) {
 						options.rotation = index;
-						setInterval();
+						settingsChanged();
 					}
 				},
 				{
@@ -84,7 +84,7 @@ function addMenuItem() {
 					selectedIndex: options.zoom,
 					onChange: function (index) {
 						options.zoom = index;
-						setInterval();
+						settingsChanged();
 					}
 				},
 				{
@@ -114,7 +114,7 @@ function addMenuItem() {
 					onChange: function (index) {
 						options.units = index;
 						updateSpinner();
-						setInterval();
+						settingsChanged();
 					}
 				},
 				{
@@ -153,7 +153,7 @@ function addMenuItem() {
 					isChecked: options.isEnabled,
 					onChange: function (isChecked) {
 						options.isEnabled = isChecked;
-						setInterval();
+						settingsChanged();
 					}
 				},
 				{
@@ -183,66 +183,72 @@ function updateSpinner() {
 	var text = options.units === 3 ? ("" + options.interval * tickMultiplier) : ("" + options.interval);
 
 	theWindow.findWidget("intervalSpinner").text = text;
-	setInterval();
+	settingsChanged();
 }
 
-function setInterval() {
+function settingsChanged() {
 	if (options.isEnabled) {
-		var alertInterval = "";
-		switch (options.units) {
-			case 0: // In-game days
-				alertInterval = (options.interval + " days");
-				if (inGameSubscription) inGameSubscription.dispose();
-				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
-				break;
-			case 1: // In-game months
-				alertInterval = (options.interval + " months");
-				if (inGameSubscription) inGameSubscription.dispose();
-				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
-				break;
-			case 2: // In-game years
-				alertInterval = (options.interval + " years");
-				if (inGameSubscription) inGameSubscription.dispose();
-				inGameSubscription = context.subscribe("interval.day", inGameTimeCapture);
-				break;
-			case 3: // Ticks
-				alertInterval = ((options.interval * tickMultiplier) + " ticks");
-				if (inGameSubscription) inGameSubscription.dispose();
-				inGameSubscription = context.subscribe("interval.tick", inGameTimeCapture);
-				break;
-
-			case 4: // Real-time seconds
-				alertInterval = (options.interval + " seconds");
-				context.clearInterval(realTimeSubscription);
-				realTimeSubscription = context.setInterval(capture, options.interval * 1000);
-				break;
-			case 5: // Real-time minutes
-				alertInterval = (options.interval + " minutes");
-				context.clearInterval(realTimeSubscription);
-				realTimeSubscription = context.setInterval(capture, options.interval * 1000 * 60);
-				break;
-			case 6: // Real-time hours
-				alertInterval = (options.interval + " hours");
-				context.clearInterval(realTimeSubscription);
-				realTimeSubscription = context.setInterval(capture, options.interval * 1000 * 60 * 60);
-				break;
-		}
-
-		sleeps = options.interval;
-		console.log("Screenshotter enabled to every " + alertInterval);
+		enable();
 	} else {
-		// If we disabled the screenshotter:
-
-		// (1) Dispose of the game-time subscription
-		if (inGameSubscription) {
-			inGameSubscription.dispose();
-		}
-
-		// (2) Dispose of the real-time subscription
-		context.clearInterval(realTimeSubscription);
-
-		console.log("Screenshotter disabled");
+		disable();
 	}
+}
+
+function enable() {
+	var alertInterval = "";
+	switch (options.units) {
+		case 0: // In-game days
+			alertInterval = (options.interval + " days");
+			setInGameTime("interval.day");
+			break;
+		case 1: // In-game months
+			alertInterval = (options.interval + " months");
+			setInGameTime("interval.day");
+			break;
+		case 2: // In-game years
+			alertInterval = (options.interval + " years");
+			setInGameTime("interval.day");
+			break;
+		case 3: // Ticks
+			alertInterval = ((options.interval * tickMultiplier) + " ticks");
+			setInGameTime("interval.tick");
+			break;
+
+		case 4: // Real-time seconds
+			alertInterval = (options.interval + " seconds");
+			setRealTime(options.interval * 1000);
+			break;
+		case 5: // Real-time minutes
+			alertInterval = (options.interval + " minutes");
+			setRealTime(options.interval * 1000 * 60);
+			break;
+		case 6: // Real-time hours
+			alertInterval = (options.interval + " hours");
+			setRealTime(options.interval * 1000 * 60 * 60);
+			break;
+	}
+
+	sleeps = options.interval;
+	console.log("Screenshotter enabled to every " + alertInterval);
+}
+
+function setInGameTime(type) {
+	if (inGameSubscription) inGameSubscription.dispose();
+	inGameSubscription = context.subscribe(type, inGameTimeCapture);
+}
+
+function setRealTime(milliseconds) {
+	context.clearInterval(realTimeSubscription);
+	realTimeSubscription = context.setInterval(capture, milliseconds);
+}
+
+function disable() {
+	if (inGameSubscription) {
+		inGameSubscription.dispose();
+	}
+
+	context.clearInterval(realTimeSubscription);
+	console.log("Screenshotter disabled");
 }
 
 function inGameTimeCapture() {
