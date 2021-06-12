@@ -1,3 +1,4 @@
+/* eslint-disable */
 const name = "Screenshotter";
 const version = "1.3";
 const author = "fidwell";

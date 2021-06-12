@@ -22,13 +22,26 @@
   "rules": {
     "no-undef": 0,
     "spaced-comment": 0,
-    "max-len": ["error", { "code": 120 }],
-    "import/extensions": ["error", "always", { "js": "never", "ts": "never" }],
-    "quotes": ["double"]
+    "max-len": [
+      "error",
+      { "code": 120 }
+    ],
+    "import/extensions": [
+      "error",
+      "always",
+      {
+        "js": "never",
+        "ts": "never"
+      }
+    ],
+    "quotes": [ 2, "double" ],
+    "no-var": "error",
+    "no-unused-vars": "error",
+    "linebreak-style": "off"
   },
   "settings": {
     "import/resolver": {
-      "node": { "extensions": [".js", ".ts"] }
+      "node": { "extensions": [ ".js", ".ts" ] }
     }
   }
 }
