@@ -1,6 +1,9 @@
 const name = "Screenshotter";
-const version = "1.2";
+const version = "1.3";
 const author = "fidwell";
+
+const namespace = "screenshotter";
+const storagePrefix = namespace + ".";
 
 const unitOptions = [
 	"in-game days",
@@ -192,6 +195,8 @@ function settingsChanged() {
 	} else {
 		disable();
 	}
+
+	saveSettings();
 }
 
 function enable() {
@@ -306,7 +311,36 @@ function captureWithRotation(rotation) {
 	});
 }
 
+function saveSettings() {
+	saveSetting("isEnabled", options.isEnabled);
+	saveSetting("zoom", options.zoom);
+	saveSetting("rotation", options.rotation);
+	saveSetting("units", options.units);
+	saveSetting("interval", options.interval);
+}
+
+function saveSetting(key, value) {
+	context.sharedStorage.set(storagePrefix + key, value);
+}
+
+function loadSettings() {
+	options.isEnabled = loadSetting("isEnabled") || false;
+	options.zoom = loadSetting("zoom") || 0;
+	options.rotation = loadSetting("rotation") || 0;
+	options.units = loadSetting("units") || 0;
+	options.interval = loadSetting("interval") || 1;
+
+	if (options.isEnabled) {
+		enable();
+    }
+}
+
+function loadSetting(key) {
+	return context.sharedStorage.get(storagePrefix + key);
+}
+
 function main() {
+	loadSettings();
 	addMenuItem();
 }
 
