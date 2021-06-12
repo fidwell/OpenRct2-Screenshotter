@@ -1,6 +1,9 @@
 const name = "Screenshotter";
-const version = "1.2";
+const version = "1.3";
 const author = "fidwell";
+
+const namespace = "screenshotter";
+const storagePrefix = namespace + ".";
 
 const unitOptions = [
 	"in-game days",
@@ -192,6 +195,8 @@ function settingsChanged() {
 	} else {
 		disable();
 	}
+
+	saveSettings();
 }
 
 function enable() {
@@ -306,7 +311,84 @@ function captureWithRotation(rotation) {
 	});
 }
 
+function saveSettings() {
+	saveSetting("isEnabled", options.isEnabled);
+	saveSetting("zoom", options.zoom);
+	saveSetting("rotation", options.rotation);
+	saveSetting("units", options.units);
+	saveSetting("interval", options.interval);
+}
+
+function saveSetting(key, value) {
+	context.sharedStorage.set(storagePrefix + key, value);
+}
+
+function loadSettings() {
+	options.isEnabled = loadSetting("isEnabled") || false;
+	options.zoom = loadSetting("zoom") || 0;
+	options.rotation = loadSetting("rotation") || 0;
+	options.units = loadSetting("units") || 0;
+	options.interval = loadSetting("interval") || 1;
+
+	if (options.isEnabled) {
+		enable();
+		showLoadAlert();
+    }
+}
+
+function showLoadAlert() {
+	const width = 270;
+	const height = 66;
+
+	var alert = ui.openWindow({
+		title: name,
+		id: 1,
+		classification: name,
+		width: width,
+		height: height,
+		x: ui.width / 2 - width / 2,
+		y: ui.height / 2 - height / 2,
+		widgets: [
+			{
+				type: "label",
+				x: 10,
+				y: 20,
+				width: 260,
+				height: 16,
+				text: "Warning: Screenshotter is currently running."
+			}, {
+				type: "button",
+				x: 10,
+				y: 40,
+				width: 120,
+				height: 16,
+				text: "Disable",
+				onClick: function () {
+					options.isEnabled = false;
+					settingsChanged();
+					alert.close();
+				}
+			}, {
+				type: "button",
+				x: 140,
+				y: 40,
+				width: 120,
+				height: 16,
+				text: "Leave enabled",
+				onClick: function () {
+					alert.close();
+				}
+			}
+		]
+	});
+}
+
+function loadSetting(key) {
+	return context.sharedStorage.get(storagePrefix + key);
+}
+
 function main() {
+	loadSettings();
 	addMenuItem();
 }
 
