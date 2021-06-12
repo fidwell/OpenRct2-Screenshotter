@@ -1,0 +1,4 @@
+lib/
+.vs/
+src/*.js*
+node_modules/
