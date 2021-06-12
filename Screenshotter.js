@@ -332,7 +332,55 @@ function loadSettings() {
 
 	if (options.isEnabled) {
 		enable();
+		showLoadAlert();
     }
+}
+
+function showLoadAlert() {
+	const width = 270;
+	const height = 66;
+
+	var alert = ui.openWindow({
+		title: name,
+		id: 1,
+		classification: name,
+		width: width,
+		height: height,
+		x: ui.width / 2 - width / 2,
+		y: ui.height / 2 - height / 2,
+		widgets: [
+			{
+				type: "label",
+				x: 10,
+				y: 20,
+				width: 260,
+				height: 16,
+				text: "Warning: Screenshotter is currently running."
+			}, {
+				type: "button",
+				x: 10,
+				y: 40,
+				width: 120,
+				height: 16,
+				text: "Disable",
+				onClick: function () {
+					options.isEnabled = false;
+					settingsChanged();
+					alert.close();
+				}
+			}, {
+				type: "button",
+				x: 140,
+				y: 40,
+				width: 120,
+				height: 16,
+				text: "Leave enabled",
+				onClick: function () {
+					alert.close();
+				}
+			}
+		]
+	});
 }
 
 function loadSetting(key) {
