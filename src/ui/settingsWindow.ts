@@ -20,7 +20,7 @@ export default class SettingsWindow {
       classification: Environment.namespace,
       title: `${Environment.pluginName} (v${Environment.pluginVersion})`,
       width: 230,
-      height: 220,
+      height: 265,
       widgets: [
         <GroupBoxWidget>{
           type: "groupbox",
@@ -72,6 +72,7 @@ export default class SettingsWindow {
             this.settingsChanged();
           }
         },
+
         <GroupBoxWidget>{
           type: "groupbox",
           x: 10,
@@ -131,10 +132,32 @@ export default class SettingsWindow {
             this.settingsChanged();
           }
         },
+
+        <GroupBoxWidget>{
+          type: "groupbox",
+          x: 10,
+          y: 155,
+          width: 210,
+          height: 40,
+          text: "Other options"
+        },
+        <CheckboxWidget>{
+          type: "checkbox",
+          x: 20,
+          y: 170,
+          width: 200,
+          height: 16,
+          text: "Transparent background",
+          isChecked: Storage.getTransparent(),
+          onChange: (isChecked) => {
+            Storage.setTransparent(isChecked);
+          }
+        },
+
         <CheckboxWidget>{
           type: "checkbox",
           x: 10,
-          y: 155,
+          y: 200,
           width: 210,
           height: 16,
           text: "Enabled",
@@ -150,7 +173,7 @@ export default class SettingsWindow {
         <ButtonWidget>{
           type: "button",
           x: 10,
-          y: 175,
+          y: 220,
           width: 210,
           height: 16,
           text: "Take a screenshot now",
@@ -159,7 +182,7 @@ export default class SettingsWindow {
         <LabelWidget>{
           type: "label",
           x: 10,
-          y: 200,
+          y: 245,
           width: 210,
           height: 16,
           isDisabled: true,

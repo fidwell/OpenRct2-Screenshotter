@@ -3,6 +3,7 @@ enum OptionType {
   Zoom = "zoom",
   Rotation = "rotation",
   Units = "units",
-  Interval = "interval"
+  Interval = "interval",
+  Transparent = "transparent"
 }
 export default OptionType;
