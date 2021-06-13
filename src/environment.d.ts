@@ -3,8 +3,7 @@
  */
 type BuildConfiguration = "production" | "development";
 
-
 /**
  * The current active build configuration.
  */
-declare const __BUILD_CONFIGURATION__: BuildConfiguration;
+declare const __BUILD_CONFIGURATION__: BuildConfiguration; // eslint-disable-line

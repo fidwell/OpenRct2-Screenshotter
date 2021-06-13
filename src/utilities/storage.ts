@@ -2,7 +2,7 @@ import * as Environment from "../environment";
 import Angle from "../models/angle";
 import Interval from "../models/interval";
 import IntervalUnit from "../models/intervalUnit";
-import OptionType from "../models/OptionType";
+import OptionType from "../models/optionType";
 import ZoomLevel from "../models/zoomLevel";
 
 const storagePrefix = `${Environment.namespace}.`;
