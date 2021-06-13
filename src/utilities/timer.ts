@@ -39,7 +39,7 @@ export default class Timer {
         this.setInGameTime("interval.day");
         break;
       case IntervalUnitId.Ticks:
-        alertInterval = `${interval.amount * Environment.tickMultiplier} ticks"`;
+        alertInterval = `${interval.amount * Environment.tickMultiplier} ticks`;
         this.setInGameTime("interval.tick");
         break;
 
