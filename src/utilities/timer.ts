@@ -55,7 +55,8 @@ export default class Timer {
         alertInterval = `${interval.amount} hours`;
         this.setRealTime(interval.amount * 1000 * 60 * 60);
         break;
-      default: // Unknown
+      default:
+        Log.error("Invalid interval units");
         break;
     }
 

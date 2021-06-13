@@ -1,10 +1,16 @@
 import * as Environment from "../environment";
-import Storage from "../utilities/storage";
+import Timer from "../utilities/timer";
 
 const windowAlertId = "screenshotterAlert";
 
 export default class AlertWindow {
   private window?: Window;
+
+  private timer?: Timer;
+
+  constructor(timer: Timer) {
+    this.timer = timer;
+  }
 
   show(): void {
     const width = 270;
@@ -34,7 +40,7 @@ export default class AlertWindow {
           height: 16,
           text: "Disable",
           onClick: () => {
-            Storage.setIsEnabled(false);
+            this.timer.disable();
             this.window.close();
           }
         },

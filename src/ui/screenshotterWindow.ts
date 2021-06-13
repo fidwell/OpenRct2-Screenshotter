@@ -3,8 +3,8 @@ import Angle from "../models/angle";
 import Capturer from "../utilities/capturer";
 import IntervalUnit, { IntervalUnitId } from "../models/intervalUnit";
 import Storage from "../utilities/storage";
-import ZoomLevel from "../models/zoomLevel";
 import Timer from "../utilities/timer";
+import ZoomLevel from "../models/zoomLevel";
 
 export default class ScreenshotterWindow {
   onUpdate?: () => void;
@@ -48,6 +48,7 @@ export default class ScreenshotterWindow {
           selectedIndex: Storage.getRotation().id,
           onChange: (index) => {
             Storage.setRotation(Angle.all[index]);
+            this.settingsChanged();
           }
         },
         <LabelWidget>{
@@ -68,6 +69,7 @@ export default class ScreenshotterWindow {
           selectedIndex: Storage.getZoom().level,
           onChange: (index) => {
             Storage.setZoom(ZoomLevel.all[index]);
+            this.settingsChanged();
           }
         },
         <GroupBoxWidget>{
@@ -99,6 +101,7 @@ export default class ScreenshotterWindow {
             interval.unit = IntervalUnit.get(index);
             Storage.setInterval(interval);
             this.updateSpinner();
+            this.settingsChanged();
           }
         },
         <LabelWidget>{
@@ -120,10 +123,12 @@ export default class ScreenshotterWindow {
           onDecrement: () => {
             ScreenshotterWindow.intervalDecrement();
             this.updateSpinner();
+            this.settingsChanged();
           },
           onIncrement: () => {
             ScreenshotterWindow.intervalIncrement();
             this.updateSpinner();
+            this.settingsChanged();
           }
         },
         <CheckboxWidget>{
@@ -197,6 +202,13 @@ export default class ScreenshotterWindow {
 
   private updateSpinner(): void {
     this.window.findWidget<SpinnerWidget>("intervalSpinner").text = ScreenshotterWindow.getSpinnerText();
+  }
+
+  private settingsChanged(): void {
+    if (Storage.getIsEnabled()) {
+      // Force a reload of settings
+      this.timer.enable();
+    }
   }
 
   constructor(timer: Timer) {

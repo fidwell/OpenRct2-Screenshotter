@@ -1,8 +1,8 @@
 import * as Environment from "./environment";
 import * as Log from "./utilities/logger";
+import AlertWindow from "./ui/alertWindow";
 import ScreenshotterWindow from "./ui/screenshotterWindow";
 import Storage from "./utilities/storage";
-import AlertWindow from "./ui/alertWindow";
 import Timer from "./utilities/timer";
 
 let timerInstance: Timer | null;
@@ -31,11 +31,12 @@ const main = (): void => {
     return;
   }
 
+  timerInstance = new Timer();
+
   if (Storage.getIsEnabled()) {
-    new AlertWindow().show();
+    new AlertWindow(timerInstance).show();
   }
 
-  timerInstance = new Timer();
   ui.registerMenuItem(Environment.pluginName, () => openWindow());
 };
 
