@@ -1,4 +1,5 @@
 import * as Environment from "./environment";
+import * as Log from "./utilities/logger";
 import ScreenshotterWindow from "./screenshotterWindow";
 
 let windowInstance: ScreenshotterWindow | null;
@@ -22,7 +23,7 @@ function openWindow(): void {
 
 const main = (): void => {
   if (!Environment.isUiAvailable) {
-    console.log("UI unavailable, plugin disabled.");
+    Log.warning("UI unavailable, plugin disabled.");
     return;
   }
 

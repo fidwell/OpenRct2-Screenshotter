@@ -1,4 +1,5 @@
 import * as Environment from "./environment";
+import * as Log from "./utilities/logger";
 
 const namespace = "screenshotter";
 const windowAlertId = "screenshotterAlert";
@@ -18,12 +19,9 @@ const unitOptions = [
 const zoomLevels = ["1:1", "2:1", "4:1", "8:1", "16:1", "32:1"];
 const rotations = ["0°", "90°", "180°", "270°", "All four"];
 
-var inGameSubscription = null;
-var realTimeSubscription = 0;
-var sleeps = 0;
-var tickMultiplier = 100;
+const tickMultiplier = 100;
 
-var options = {
+const options = {
   isEnabled: false,
   zoom: 0,
   rotation: 0,
@@ -35,16 +33,21 @@ var options = {
 
 export default class ScreenshotterWindow {
   onUpdate?: () => void;
+
   onClose?: () => void;
 
-  private _window?: Window;
+  private window?: Window;
+
+  private inGameSubscription: IDisposable = null;
+
+  private realTimeSubscription: number = 0;
+
+  private sleeps: number = 0;
 
   private createWindow(): Window {
-    let windowTitle = `${Environment.pluginName} (v${Environment.pluginVersion})`;
-
     const window = ui.openWindow({
       classification: namespace,
-      title: windowTitle,
+      title: `${Environment.pluginName} (v${Environment.pluginVersion})`,
       width: 230,
       height: 220,
       widgets: [
@@ -72,7 +75,7 @@ export default class ScreenshotterWindow {
           height: 16,
           items: rotations,
           selectedIndex: options.rotation,
-          onChange: function (index) {
+          onChange: (index) => {
             options.rotation = index;
             this.settingsChanged();
           }
@@ -93,7 +96,7 @@ export default class ScreenshotterWindow {
           height: 16,
           items: zoomLevels,
           selectedIndex: options.zoom,
-          onChange: function (index) {
+          onChange: (index) => {
             options.zoom = index;
             this.settingsChanged();
           }
@@ -122,7 +125,7 @@ export default class ScreenshotterWindow {
           height: 16,
           items: unitOptions,
           selectedIndex: options.units,
-          onChange: function (index) {
+          onChange: (index) => {
             options.units = index;
             this.updateSpinner();
             this.settingsChanged();
@@ -143,14 +146,14 @@ export default class ScreenshotterWindow {
           y: 128,
           width: 120,
           height: 16,
-          text: ("" + options.interval),
-          onDecrement: function () {
-            options.interval--;
+          text: `${options.interval}`,
+          onDecrement: () => {
+            options.interval -= 1;
             if (options.interval < 1) options.interval = 1;
             this.updateSpinner();
           },
-          onIncrement: function () {
-            options.interval++;
+          onIncrement: () => {
+            options.interval += 1;
             this.updateSpinner();
           }
         },
@@ -162,7 +165,7 @@ export default class ScreenshotterWindow {
           height: 16,
           text: "Enabled",
           isChecked: options.isEnabled,
-          onChange: function (isChecked) {
+          onChange: (isChecked) => {
             options.isEnabled = isChecked;
             this.settingsChanged();
           }
@@ -174,7 +177,7 @@ export default class ScreenshotterWindow {
           width: 210,
           height: 16,
           text: "Take a screenshot now",
-          onClick: function () { this.capture(); }
+          onClick: () => ScreenshotterWindow.capture()
         },
         <LabelWidget>{
           type: "label",
@@ -202,11 +205,11 @@ export default class ScreenshotterWindow {
   }
 
   private updateSpinner(): void {
-    var text = options.units === 3
-      ? ("" + options.interval * tickMultiplier)
-      : ("" + options.interval);
+    const text = options.units === 3
+      ? `${options.interval * tickMultiplier}`
+      : `${options.interval}`;
 
-    this._window.findWidget<SpinnerWidget>("intervalSpinner").text = text;
+    this.window.findWidget<SpinnerWidget>("intervalSpinner").text = text;
     this.settingsChanged();
   }
 
@@ -217,139 +220,141 @@ export default class ScreenshotterWindow {
       this.disable();
     }
 
-    this.saveSettings();
+    ScreenshotterWindow.saveSettings();
   }
 
   private enable(): void {
-    var alertInterval = "";
+    let alertInterval = "";
     switch (options.units) {
       case 0: // In-game days
-        alertInterval = (options.interval + " days");
+        alertInterval = `${options.interval} days`;
         this.setInGameTime("interval.day");
         break;
       case 1: // In-game months
-        alertInterval = (options.interval + " months");
+        alertInterval = `${options.interval} months`;
         this.setInGameTime("interval.day");
         break;
       case 2: // In-game years
-        alertInterval = (options.interval + " years");
+        alertInterval = `${options.interval} years`;
         this.setInGameTime("interval.day");
         break;
       case 3: // Ticks
-        alertInterval = ((options.interval * tickMultiplier) + " ticks");
+        alertInterval = `${options.interval * tickMultiplier} ticks"`;
         this.setInGameTime("interval.tick");
         break;
 
       case 4: // Real-time seconds
-        alertInterval = (options.interval + " seconds");
+        alertInterval = `${options.interval} seconds`;
         this.setRealTime(options.interval * 1000);
         break;
       case 5: // Real-time minutes
-        alertInterval = (options.interval + " minutes");
+        alertInterval = `${options.interval} minutes`;
         this.setRealTime(options.interval * 1000 * 60);
         break;
       case 6: // Real-time hours
-        alertInterval = (options.interval + " hours");
+        alertInterval = `${options.interval} hours`;
         this.setRealTime(options.interval * 1000 * 60 * 60);
+        break;
+      default: // Unknown
         break;
     }
 
-    sleeps = options.interval;
-    console.log("Screenshotter enabled to every " + alertInterval);
+    this.sleeps = options.interval;
+    Log.debug(`Screenshotter enabled to every ${alertInterval}`);
   }
 
   private setInGameTime(type): void {
-    if (inGameSubscription) inGameSubscription.dispose();
-    inGameSubscription = context.subscribe(type, this.inGameTimeCapture);
+    if (this.inGameSubscription) this.inGameSubscription.dispose();
+    this.inGameSubscription = context.subscribe(type, this.inGameTimeCapture);
   }
 
   private setRealTime(milliseconds): void {
-    context.clearInterval(realTimeSubscription);
-    realTimeSubscription = context.setInterval(this.capture, milliseconds);
+    context.clearInterval(this.realTimeSubscription);
+    this.realTimeSubscription = context.setInterval(ScreenshotterWindow.capture, milliseconds);
   }
 
   private disable(): void {
-    if (inGameSubscription) {
-      inGameSubscription.dispose();
+    if (this.inGameSubscription) {
+      this.inGameSubscription.dispose();
     }
 
-    context.clearInterval(realTimeSubscription);
-    console.log("Screenshotter disabled");
+    context.clearInterval(this.realTimeSubscription);
+    Log.debug("Screenshotter disabled");
   }
 
   private inGameTimeCapture(): void {
     switch (options.units) {
       case 0: // In-game days
       case 3: // ticks
-        sleeps--;
+        this.sleeps -= 1;
         break;
       case 1: // In-game months
         if (date.day === 1) {
-          sleeps--;
+          this.sleeps -= 1;
         }
         break;
       case 2: // In-game years
         if (date.day === 1 && date.month === 0) {
-          sleeps--;
+          this.sleeps -= 1;
         }
         break;
       default:
         break;
     }
 
-    if (sleeps <= 0) {
-      this.capture();
+    if (this.sleeps <= 0) {
+      ScreenshotterWindow.capture();
       this.resetSleepTimer();
     }
   }
 
-  private capture(): void {
-    console.log("Capturing...")
+  private static capture(): void {
+    Log.debug("Capturing...");
 
     if (options.rotation === 4) {
-      for (var x = 0; x < 4; x++) {
-        this.captureWithRotation(x);
+      for (let x = 0; x < 4; x += 1) {
+        ScreenshotterWindow.captureWithRotation(x);
       }
     } else {
-      this.captureWithRotation(options.rotation);
+      ScreenshotterWindow.captureWithRotation(options.rotation);
     }
   }
 
   private resetSleepTimer(): void {
-    sleeps = options.units === 3
+    this.sleeps = options.units === 3
       ? options.interval * tickMultiplier
       : options.interval;
   }
 
-  private captureWithRotation(rotation): void {
+  private static captureWithRotation(rotation): void {
     context.captureImage({
       // filename: "", // Default (screenshot\park yyyy-mm-dd hh-mm-ss.png)
       // width: 0, // Default for giant screenshot
       // height: 0, // Default for giant screenshot
       // position: null, // Default for giant screenshot
       zoom: options.zoom,
-      rotation: rotation
+      rotation
     });
   }
 
-  private saveSettings(): void {
-    this.saveSetting("isEnabled", options.isEnabled);
-    this.saveSetting("zoom", options.zoom);
-    this.saveSetting("rotation", options.rotation);
-    this.saveSetting("units", options.units);
-    this.saveSetting("interval", options.interval);
+  private static saveSettings(): void {
+    ScreenshotterWindow.saveSetting("isEnabled", options.isEnabled);
+    ScreenshotterWindow.saveSetting("zoom", options.zoom);
+    ScreenshotterWindow.saveSetting("rotation", options.rotation);
+    ScreenshotterWindow.saveSetting("units", options.units);
+    ScreenshotterWindow.saveSetting("interval", options.interval);
   }
 
-  private saveSetting(key, value): void {
-    context.sharedStorage.set(storagePrefix + key, value);
+  private static saveSetting(key, value): void {
+    context.sharedStorage.set(`${storagePrefix}${key}`, value);
   }
 
   private loadSettings(): void {
-    options.isEnabled = this.loadSetting("isEnabled") || false;
-    options.zoom = this.loadSetting("zoom") || 0;
-    options.rotation = this.loadSetting("rotation") || 0;
-    options.units = this.loadSetting("units") || 0;
-    options.interval = this.loadSetting("interval") || 1;
+    options.isEnabled = ScreenshotterWindow.loadSetting("isEnabled") || false;
+    options.zoom = ScreenshotterWindow.loadSetting("zoom") || 0;
+    options.rotation = ScreenshotterWindow.loadSetting("rotation") || 0;
+    options.units = ScreenshotterWindow.loadSetting("units") || 0;
+    options.interval = ScreenshotterWindow.loadSetting("interval") || 1;
 
     if (options.isEnabled) {
       this.enable();
@@ -361,11 +366,11 @@ export default class ScreenshotterWindow {
     const width = 270;
     const height = 66;
 
-    var alert = ui.openWindow({
+    const alert = ui.openWindow({
       title: Environment.pluginName,
       classification: windowAlertId,
-      width: width,
-      height: height,
+      width,
+      height,
       x: ui.width / 2 - width / 2,
       y: ui.height / 2 - height / 2,
       widgets: [
@@ -384,7 +389,7 @@ export default class ScreenshotterWindow {
           width: 120,
           height: 16,
           text: "Disable",
-          onClick: function () {
+          onClick: () => {
             options.isEnabled = false;
             this.settingsChanged();
             alert.close();
@@ -397,7 +402,7 @@ export default class ScreenshotterWindow {
           width: 120,
           height: 16,
           text: "Leave enabled",
-          onClick: function () {
+          onClick: () => {
             alert.close();
           }
         }
@@ -405,19 +410,19 @@ export default class ScreenshotterWindow {
     });
   }
 
-  private loadSetting(key): any {
+  private static loadSetting(key): any {
     return context.sharedStorage.get(storagePrefix + key);
   }
 
   show(): void {
-    if (this._window) {
-      this._window.bringToFront();
+    if (this.window) {
+      this.window.bringToFront();
     } else {
-      this._window = this.createWindow();
+      this.window = this.createWindow();
     }
   }
 
-  close(): void {
+  static close(): void {
     ui.closeWindows(namespace);
   }
 }
