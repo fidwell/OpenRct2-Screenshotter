@@ -1,6 +1,6 @@
 /// <reference path="environment.d.ts" />
 
-export const pluginVersion = "1.4";
+export const pluginVersion = "1.3-t";
 export const pluginName = "Screenshotter";
 export const pluginAuthors = ["fidwell"];
 export const buildConfiguration: BuildConfiguration = __BUILD_CONFIGURATION__;

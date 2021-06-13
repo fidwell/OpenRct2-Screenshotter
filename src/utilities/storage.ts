@@ -34,7 +34,7 @@ export default class Storage {
     const intervalUnit = Storage.loadSetting(OptionType.Units) || 0;
     const intervalAmount = Storage.loadSetting(OptionType.Interval) || 1;
 
-    this.interval = new Interval(IntervalUnit.get(intervalUnit), intervalAmount);
+    this.interval = new Interval(IntervalUnit.all[intervalUnit], intervalAmount);
 
     this.isLoaded = true;
   }
