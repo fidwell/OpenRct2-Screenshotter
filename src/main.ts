@@ -1,6 +1,8 @@
 import * as Environment from "./environment";
 import * as Log from "./utilities/logger";
-import ScreenshotterWindow from "./screenshotterWindow";
+import ScreenshotterWindow from "./ui/screenshotterWindow";
+import Storage from "./utilities/storage";
+import AlertWindow from "./ui/alertWindow";
 
 let windowInstance: ScreenshotterWindow | null;
 
@@ -25,6 +27,10 @@ const main = (): void => {
   if (!Environment.isUiAvailable) {
     Log.warning("UI unavailable, plugin disabled.");
     return;
+  }
+
+  if (Storage.isEnabled()) {
+    new AlertWindow().show();
   }
 
   ui.registerMenuItem(Environment.pluginName, () => openWindow());

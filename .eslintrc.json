@@ -38,7 +38,9 @@
     "no-var": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "linebreak-style": "off",
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": [ "error" ]
   },
   "settings": {
     "import/resolver": {
