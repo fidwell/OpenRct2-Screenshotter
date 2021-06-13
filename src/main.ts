@@ -1,12 +1,12 @@
 import * as Environment from "./environment";
 import * as Log from "./utilities/logger";
 import AlertWindow from "./ui/alertWindow";
-import ScreenshotterWindow from "./ui/screenshotterWindow";
+import SettingsWindow from "./ui/settingsWindow";
 import Storage from "./utilities/storage";
 import Timer from "./utilities/timer";
 
 let timerInstance: Timer | null;
-let windowInstance: ScreenshotterWindow | null;
+let windowInstance: SettingsWindow | null;
 
 function openWindow(): void {
   // Show the current instance if one is active.
@@ -15,7 +15,7 @@ function openWindow(): void {
     return;
   }
 
-  const window = new ScreenshotterWindow(timerInstance);
+  const window = new SettingsWindow(timerInstance);
 
   window.onClose = (): void => {
     windowInstance = null;

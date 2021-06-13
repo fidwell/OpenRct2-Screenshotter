@@ -75,12 +75,12 @@ export default class Timer {
     Log.debug("Screenshotter disabled");
   }
 
-  public setInGameTime(type: HookType): void {
+  private setInGameTime(type: HookType): void {
     if (this.inGameSubscription) this.inGameSubscription.dispose();
     this.inGameSubscription = context.subscribe(type, () => this.inGameTimeCapture());
   }
 
-  public setRealTime(milliseconds: number): void {
+  private setRealTime(milliseconds: number): void {
     context.clearInterval(this.realTimeSubscription);
     this.realTimeSubscription = context.setInterval(() => Capturer.capture(), milliseconds);
   }

@@ -8,20 +8,20 @@ type LogLevel = "debug" | "warning" | "error";
 /**
  * Prints a message with the specified logging and plugin identifier.
  */
-function print(level: LogLevel, message: string): void {
-  console.log(`<RVE/${level}> ${message}`); // eslint-disable-line
+function print(level: LogLevel, color: number, message: string): void {
+  console.log(`[${color}m<Screenshotter-${level}>[0m ${message}`); // eslint-disable-line
 }
 
 export function debug(message: string): void {
   if (Environment.isDevelopment) {
-    print("debug", message);
+    print("debug", 94, message);
   }
 }
 
 export function warning(message: string): void {
-  print("warning", message);
+  print("warning", 93, message);
 }
 
 export function error(message: string): void {
-  print("error", message);
+  print("error", 91, message);
 }

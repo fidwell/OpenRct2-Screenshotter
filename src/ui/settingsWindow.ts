@@ -6,7 +6,7 @@ import Storage from "../utilities/storage";
 import Timer from "../utilities/timer";
 import ZoomLevel from "../models/zoomLevel";
 
-export default class ScreenshotterWindow {
+export default class SettingsWindow {
   onUpdate?: () => void;
 
   onClose?: () => void;
@@ -119,14 +119,14 @@ export default class ScreenshotterWindow {
           y: 128,
           width: 120,
           height: 16,
-          text: ScreenshotterWindow.getSpinnerText(),
+          text: SettingsWindow.getSpinnerText(),
           onDecrement: () => {
-            ScreenshotterWindow.intervalDecrement();
+            SettingsWindow.intervalDecrement();
             this.updateSpinner();
             this.settingsChanged();
           },
           onIncrement: () => {
-            ScreenshotterWindow.intervalIncrement();
+            SettingsWindow.intervalIncrement();
             this.updateSpinner();
             this.settingsChanged();
           }
@@ -201,7 +201,7 @@ export default class ScreenshotterWindow {
   }
 
   private updateSpinner(): void {
-    this.window.findWidget<SpinnerWidget>("intervalSpinner").text = ScreenshotterWindow.getSpinnerText();
+    this.window.findWidget<SpinnerWidget>("intervalSpinner").text = SettingsWindow.getSpinnerText();
   }
 
   private settingsChanged(): void {
