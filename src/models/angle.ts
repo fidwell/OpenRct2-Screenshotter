@@ -20,10 +20,6 @@ export default class Angle {
     this.label = label;
   }
 
-  static getAll(): Angle[] {
-    return this.all;
-  }
-
   static getDefault(): Angle {
     return Angle.all[0];
   }

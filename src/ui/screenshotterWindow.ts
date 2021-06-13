@@ -5,10 +5,9 @@ import Capturer from "../utilities/capturer";
 import Options from "../models/options";
 import Storage from "../utilities/storage";
 import IntervalUnit, { IntervalUnitId } from "../models/intervalUnit";
+import ZoomLevel from "../models/zoomLevel";
 
 // ---- Variables from old JS version. To refactor!
-
-const zoomLevels = ["1:1", "2:1", "4:1", "8:1", "16:1", "32:1"];
 
 const tickMultiplier = 100;
 
@@ -58,7 +57,7 @@ export default class ScreenshotterWindow {
           y: 38,
           width: 90,
           height: 16,
-          items: Angle.getAll().map((a) => a.label),
+          items: Angle.all.map((a) => a.label),
           selectedIndex: this.options.rotation.id,
           onChange: (index) => {
             this.options.rotation = Angle.all[index];
@@ -79,10 +78,10 @@ export default class ScreenshotterWindow {
           y: 58,
           width: 90,
           height: 16,
-          items: zoomLevels,
-          selectedIndex: this.options.zoom,
+          items: ZoomLevel.all.map((z) => z.label),
+          selectedIndex: this.options.zoom.level,
           onChange: (index) => {
-            this.options.zoom = index;
+            this.options.zoom = ZoomLevel.all[index];
             this.settingsChanged();
           }
         },
@@ -131,7 +130,9 @@ export default class ScreenshotterWindow {
           y: 128,
           width: 120,
           height: 16,
-          text: `${this.options.interval.amount}`,
+          text: this.options.interval.unit.id === IntervalUnitId.Ticks
+            ? `${this.options.interval.amount * tickMultiplier}`
+            : `${this.options.interval.amount}`,
           onDecrement: () => {
             this.options.interval.decrement();
             this.updateSpinner();
@@ -249,7 +250,7 @@ export default class ScreenshotterWindow {
 
   private setInGameTime(type: HookType): void {
     if (this.inGameSubscription) this.inGameSubscription.dispose();
-    this.inGameSubscription = context.subscribe(type, this.inGameTimeCapture);
+    this.inGameSubscription = context.subscribe(type, () => this.inGameTimeCapture(this.options));
   }
 
   private setRealTime(milliseconds: number): void {
@@ -266,8 +267,8 @@ export default class ScreenshotterWindow {
     Log.debug("Screenshotter disabled");
   }
 
-  private inGameTimeCapture(): void {
-    switch (this.options.interval.unit.id) {
+  private inGameTimeCapture(options: Options): void {
+    switch (options.interval.unit.id) {
       case IntervalUnitId.Days:
       case IntervalUnitId.Ticks:
         this.sleeps -= 1;

@@ -4,6 +4,7 @@ import Interval from "../models/interval";
 import IntervalUnit from "../models/intervalUnit";
 import Options from "../models/options";
 import OptionType from "../models/OptionType";
+import ZoomLevel from "../models/zoomLevel";
 
 const storagePrefix = `${Environment.namespace}.`;
 
@@ -28,7 +29,7 @@ export default class Storage {
     const result: Options = new Options();
 
     result.isEnabled = Storage.isEnabled();
-    result.zoom = Storage.loadSetting(OptionType.Zoom) || 0;
+    result.zoom = ZoomLevel.all[Storage.loadSetting(OptionType.Zoom) || 0];
     result.rotation = Angle.all[Storage.loadSetting(OptionType.Rotation) || 0];
 
     const intervalUnit = Storage.loadSetting(OptionType.Units) || 0;
@@ -41,7 +42,7 @@ export default class Storage {
 
   static saveSettings(options: Options) {
     Storage.saveSetting(OptionType.IsEnabled, options.isEnabled);
-    Storage.saveSetting(OptionType.Zoom, options.zoom);
+    Storage.saveSetting(OptionType.Zoom, options.zoom.level);
     Storage.saveSetting(OptionType.Rotation, options.rotation.id);
     Storage.saveSetting(OptionType.Units, options.interval.unit.id);
     Storage.saveSetting(OptionType.Interval, options.interval.amount);

@@ -19,10 +19,10 @@ export default class Capturer {
 
     if (options.rotation.isAll()) {
       for (let x = 0; x < 4; x += 1) {
-        Capturer.captureWithRotation(options.zoom, x);
+        Capturer.captureWithRotation(options.zoom.level, x);
       }
     } else {
-      Capturer.captureWithRotation(options.zoom, options.rotation.id);
+      Capturer.captureWithRotation(options.zoom.level, options.rotation.id);
     }
   }
 }

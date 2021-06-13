@@ -1,10 +1,11 @@
 import Angle from "./angle";
 import Interval from "./interval";
+import ZoomLevel from "./zoomLevel";
 
 export default class Options {
   isEnabled: boolean;
 
-  zoom: number;
+  zoom: ZoomLevel;
 
   rotation: Angle;
 
@@ -12,11 +13,8 @@ export default class Options {
 
   constructor() {
     this.isEnabled = false;
-    this.zoom = 0;
+    this.zoom = ZoomLevel.getDefault();
     this.rotation = Angle.getDefault();
     this.interval = Interval.getDefault();
-
-    //this.units = 0;
-    //this.interval = 1;
   }
 }
