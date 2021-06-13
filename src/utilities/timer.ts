@@ -1,4 +1,3 @@
-import * as Environment from "../environment";
 import * as Log from "./logger";
 import Capturer from "./capturer";
 import { IntervalUnitId } from "../models/intervalUnit";
@@ -10,6 +9,8 @@ export default class Timer {
   private realTimeSubscription: number = 0;
 
   private sleeps: number = 0;
+
+  static readonly tickMultiplier: number = 100;
 
   constructor() {
     if (Storage.getIsEnabled()) {
@@ -39,7 +40,7 @@ export default class Timer {
         this.setInGameTime("interval.day");
         break;
       case IntervalUnitId.Ticks:
-        alertInterval = `${interval.amount * Environment.tickMultiplier} ticks`;
+        alertInterval = `${interval.amount * Timer.tickMultiplier} ticks`;
         this.setInGameTime("interval.tick");
         break;
 
@@ -114,7 +115,7 @@ export default class Timer {
   private resetSleepTimer(): void {
     const interval = Storage.getInterval();
     this.sleeps = interval.unit.id === IntervalUnitId.Ticks
-      ? interval.amount * Environment.tickMultiplier
+      ? interval.amount * Timer.tickMultiplier
       : interval.amount;
   }
 }

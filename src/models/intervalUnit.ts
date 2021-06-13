@@ -41,8 +41,4 @@ export default class IntervalUnit {
   static getDefault(): IntervalUnit {
     return IntervalUnit.all[0];
   }
-
-  static get(index: number): IntervalUnit {
-    return IntervalUnit.all[index];
-  }
 }

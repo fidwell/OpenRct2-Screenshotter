@@ -98,7 +98,7 @@ export default class SettingsWindow {
           selectedIndex: Storage.getInterval().unit.id,
           onChange: (index) => {
             const interval = Storage.getInterval();
-            interval.unit = IntervalUnit.get(index);
+            interval.unit = IntervalUnit.all[index];
             Storage.setInterval(interval);
             this.updateSpinner();
             this.settingsChanged();
@@ -184,7 +184,7 @@ export default class SettingsWindow {
   private static getSpinnerText(): string {
     const interval = Storage.getInterval();
     return interval.unit.id === IntervalUnitId.Ticks
-      ? `${interval.amount * Environment.tickMultiplier}`
+      ? `${interval.amount * Timer.tickMultiplier}`
       : `${interval.amount}`;
   }
 
