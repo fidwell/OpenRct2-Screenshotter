@@ -34,7 +34,7 @@ export default class AlertWindow {
           height: 16,
           text: "Disable",
           onClick: () => {
-            Storage.disable();
+            Storage.setIsEnabled(false);
             this.window.close();
           }
         },

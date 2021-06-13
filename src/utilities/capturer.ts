@@ -1,5 +1,5 @@
 import * as Log from "./logger";
-import Options from "../models/options";
+import Storage from "./storage";
 
 export default class Capturer {
   private static captureWithRotation(zoom: number, rotation: number): void {
@@ -14,15 +14,18 @@ export default class Capturer {
     });
   }
 
-  static capture(options: Options): void {
+  static capture(): void {
     Log.debug("Capturing...");
 
-    if (options.rotation.isAll()) {
+    const rotation = Storage.getRotation();
+    const zoom = Storage.getZoom();
+
+    if (rotation.isAll()) {
       for (let x = 0; x < 4; x += 1) {
-        Capturer.captureWithRotation(options.zoom.level, x);
+        Capturer.captureWithRotation(zoom.level, x);
       }
     } else {
-      Capturer.captureWithRotation(options.zoom.level, options.rotation.id);
+      Capturer.captureWithRotation(zoom.level, rotation.id);
     }
   }
 }
