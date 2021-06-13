@@ -1,9 +1,11 @@
+import Angle from "./angle";
+
 export default class Options {
   isEnabled: boolean;
 
   zoom: number;
 
-  rotation: number;
+  rotation: Angle;
 
   units: number;
 
@@ -12,7 +14,7 @@ export default class Options {
   constructor() {
     this.isEnabled = false;
     this.zoom = 0;
-    this.rotation = 0;
+    this.rotation = Angle.getDefault();
     this.units = 0;
     this.interval = 1;
   }

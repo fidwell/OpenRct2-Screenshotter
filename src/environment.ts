@@ -7,3 +7,4 @@ export const buildConfiguration: BuildConfiguration = __BUILD_CONFIGURATION__;
 export const isProduction = (buildConfiguration === "production");
 export const isDevelopment = (buildConfiguration === "development");
 export const isUiAvailable = (typeof ui !== "undefined");
+export const namespace = "screenshotter";

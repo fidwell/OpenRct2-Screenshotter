@@ -1,11 +1,12 @@
 import * as Environment from "./environment";
 import * as Log from "./utilities/logger";
+import Angle from "./models/angle";
 import Capturer from "./utilities/capturer";
-import Options from "./options";
+import Options from "./models/options";
+import Storage from "./utilities/storage";
 
-const namespace = "screenshotter";
 const windowAlertId = "screenshotterAlert";
-const storagePrefix = `${namespace}.`;
+const storagePrefix = `${Environment.namespace}.`;
 
 // ---- Variables from old JS version. To refactor!
 
@@ -19,7 +20,6 @@ const unitOptions = [
   "real-time hours"
 ];
 const zoomLevels = ["1:1", "2:1", "4:1", "8:1", "16:1", "32:1"];
-const rotations = ["0°", "90°", "180°", "270°", "All four"];
 
 const tickMultiplier = 100;
 
@@ -42,7 +42,7 @@ export default class ScreenshotterWindow {
 
   private createWindow(): Window {
     const window = ui.openWindow({
-      classification: namespace,
+      classification: Environment.namespace,
       title: `${Environment.pluginName} (v${Environment.pluginVersion})`,
       width: 230,
       height: 220,
@@ -69,10 +69,10 @@ export default class ScreenshotterWindow {
           y: 38,
           width: 90,
           height: 16,
-          items: rotations,
-          selectedIndex: this.options.rotation,
+          items: Angle.getAll().map((a) => a.label),
+          selectedIndex: this.options.rotation.id,
           onChange: (index) => {
-            this.options.rotation = index;
+            this.options.rotation = Angle.all[index];
             this.settingsChanged();
           }
         },
@@ -323,11 +323,11 @@ export default class ScreenshotterWindow {
   }
 
   private loadSettings(): void {
-    this.options.isEnabled = ScreenshotterWindow.loadSetting("isEnabled") || false;
-    this.options.zoom = ScreenshotterWindow.loadSetting("zoom") || 0;
-    this.options.rotation = ScreenshotterWindow.loadSetting("rotation") || 0;
-    this.options.units = ScreenshotterWindow.loadSetting("units") || 0;
-    this.options.interval = ScreenshotterWindow.loadSetting("interval") || 1;
+    this.options.isEnabled = Storage.loadSetting("isEnabled") || false;
+    this.options.zoom = Storage.loadSetting("zoom") || 0;
+    this.options.rotation = Storage.loadSetting("rotation") || 0;
+    this.options.units = Storage.loadSetting("units") || 0;
+    this.options.interval = Storage.loadSetting("interval") || 1;
 
     if (this.options.isEnabled) {
       this.enable();
@@ -383,10 +383,6 @@ export default class ScreenshotterWindow {
     });
   }
 
-  private static loadSetting(key): any {
-    return context.sharedStorage.get(storagePrefix + key);
-  }
-
   show(): void {
     if (this.window) {
       this.window.bringToFront();
@@ -397,6 +393,6 @@ export default class ScreenshotterWindow {
   }
 
   static close(): void {
-    ui.closeWindows(namespace);
+    ui.closeWindows(Environment.namespace);
   }
 }
