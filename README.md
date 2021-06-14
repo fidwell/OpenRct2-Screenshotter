@@ -8,6 +8,7 @@ This plugin for will automatically save full-size screenshots of your park on a 
   * **Rotation angle**: Set the angle to take the screenshot from. You can also have the tool take all four angles at once.
   * **Zoom level**: Set the zoom level / resolution for the screenshot. 1:1 will be an exact pixel-level view. (16:1 and higher are basically useless, but it was easy enough to include them.)
 * **Interval**: Set how often we want to take the screenshot. We need two values: the units (see below), and the amount.
+* **Transparent background**: If checked, the saved PNG file will have a transparent background instead of black.
 * **Enabled**: Turn the tool on or off.
 * **Take a screenshot now**: Take a giant screenshot now, with the selected viewport options.
 
@@ -27,7 +28,6 @@ These settings will persist between parks. When loading a park, the plugin will 
 
 ### Planned features
 
-* Transparent background option
 * Custom filename / directory
 
 Please submit any ideas under [issues](https://github.com/andrewsarnold/OpenRct2-Screenshotter/issues).
