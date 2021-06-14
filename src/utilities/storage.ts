@@ -18,6 +18,8 @@ export default class Storage {
 
   private static interval: Interval = Interval.getDefault();
 
+  private static transparent: boolean = false;
+
   private static loadSetting(key: string): any {
     return context.sharedStorage.get(`${storagePrefix}${key}`);
   }
@@ -90,5 +92,18 @@ export default class Storage {
     this.interval = value;
     Storage.saveSetting(OptionType.Units, value.unit.id);
     Storage.saveSetting(OptionType.Interval, value.amount);
+  }
+
+  static getTransparent(): boolean {
+    if (!this.isLoaded) {
+      this.loadSettings();
+    }
+
+    return this.transparent;
+  }
+
+  static setTransparent(value: boolean) {
+    this.transparent = value;
+    Storage.saveSetting(OptionType.Transparent, value);
   }
 }
