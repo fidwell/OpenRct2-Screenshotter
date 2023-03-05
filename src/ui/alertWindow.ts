@@ -33,6 +33,8 @@ export default class AlertWindow {
           text: "Warning: Screenshotter is currently running."
         },
         <ButtonWidget>{
+          window: this.window,
+          name: "btnDisable",
           type: "button",
           x: 10,
           y: 40,
@@ -42,9 +44,17 @@ export default class AlertWindow {
           onClick: () => {
             this.timer.disable();
             this.window.close();
-          }
+          },
+          isPressed: false,
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null,
+          image: null,
+          border: true
         },
         <ButtonWidget>{
+          window: this.window,
+          name: "btnLeaveEnabled",
           type: "button",
           x: 140,
           y: 40,
@@ -53,7 +63,13 @@ export default class AlertWindow {
           text: "Leave enabled",
           onClick: () => {
             this.window.close();
-          }
+          },
+          isPressed: false,
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null,
+          image: null,
+          border: true
         }
       ]
     });

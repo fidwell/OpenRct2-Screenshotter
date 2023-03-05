@@ -39,6 +39,8 @@ export default class SettingsWindow {
           text: "Rotation angle:"
         },
         <DropdownWidget>{
+          window: this.window,
+          name: "dropAngle",
           type: "dropdown",
           x: 110,
           y: 38,
@@ -49,7 +51,11 @@ export default class SettingsWindow {
           onChange: (index) => {
             Storage.setRotation(Angle.all[index]);
             this.settingsChanged();
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          text: null,
+          tooltip: null
         },
         <LabelWidget>{
           type: "label",
@@ -60,6 +66,8 @@ export default class SettingsWindow {
           text: "Zoom level:"
         },
         <DropdownWidget>{
+          window: this.window,
+          name: "dropZoom",
           type: "dropdown",
           x: 110,
           y: 58,
@@ -70,7 +78,11 @@ export default class SettingsWindow {
           onChange: (index) => {
             Storage.setZoom(ZoomLevel.all[index]);
             this.settingsChanged();
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          text: null,
+          tooltip: null
         },
 
         <GroupBoxWidget>{
@@ -90,6 +102,8 @@ export default class SettingsWindow {
           text: "Units:"
         },
         <DropdownWidget>{
+          window: this.window,
+          name: "dropInterval",
           type: "dropdown",
           x: 90,
           y: 108,
@@ -103,7 +117,11 @@ export default class SettingsWindow {
             Storage.setInterval(interval);
             this.updateSpinner();
             this.settingsChanged();
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          text: null,
+          tooltip: null
         },
         <LabelWidget>{
           type: "label",
@@ -114,6 +132,7 @@ export default class SettingsWindow {
           text: "Amount:"
         },
         <SpinnerWidget>{
+          window: this.window,
           type: "spinner",
           name: "intervalSpinner",
           x: 90,
@@ -130,9 +149,11 @@ export default class SettingsWindow {
             SettingsWindow.intervalIncrement();
             this.updateSpinner();
             this.settingsChanged();
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null          
         },
-
         <GroupBoxWidget>{
           type: "groupbox",
           x: 10,
@@ -142,6 +163,8 @@ export default class SettingsWindow {
           text: "Other options"
         },
         <CheckboxWidget>{
+          window: this.window,
+          name: "chkIsTransparent",
           type: "checkbox",
           x: 20,
           y: 170,
@@ -151,10 +174,15 @@ export default class SettingsWindow {
           isChecked: Storage.getTransparent(),
           onChange: (isChecked) => {
             Storage.setTransparent(isChecked);
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null
         },
 
         <CheckboxWidget>{
+          window: this.window,
+          name: "chkIsEnabled",
           type: "checkbox",
           x: 10,
           y: 200,
@@ -168,16 +196,27 @@ export default class SettingsWindow {
             } else {
               this.timer.disable();
             }
-          }
+          },
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null
         },
         <ButtonWidget>{
+          window: this.window,
+          name: "btnTakeNow",
           type: "button",
           x: 10,
           y: 220,
           width: 210,
           height: 16,
           text: "Take a screenshot now",
-          onClick: () => Capturer.capture()
+          onClick: () => Capturer.capture(),
+          isPressed: false,
+          isDisabled: false,
+          isVisible: true,
+          tooltip: null,
+          image: null,
+          border: true
         },
         <LabelWidget>{
           type: "label",
